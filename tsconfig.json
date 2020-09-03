@@ -21,7 +21,7 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx", "pages/car/[make]"
   ],
   "exclude": [
     "node_modules"
