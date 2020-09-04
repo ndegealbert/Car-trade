@@ -5,8 +5,8 @@ import {Model } from  "../database/getModels"
 import { getModels } from "../database/getModels"
 import  {useRouter} from  "next/router"
 import  {getAsString  }  from "./getAsString"
-import { FormControl, Grid, InputLabel, makeStyles, MenuItem, Paper, Select } from '@material-ui/core';
-import { Field, Form, Formik } from 'formik';
+import { FormControl, Grid, InputLabel, makeStyles, MenuItem, Paper, Select,SelectProps  } from '@material-ui/core';
+import { Field, Form, Formik,useField } from 'formik';
 
 
 export interface HomeProps {
@@ -63,25 +63,7 @@ export default function Home({ makes,models }: HomeProps) {
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined">
-                  <InputLabel id="search-make">model</InputLabel>
-                  <Field
-                    name="make"
-                    as={Select}
-                    labelId="search-make"
-                    label="Model"
-                  >
-                    <MenuItem value="all">
-                      <em>All Model</em>
-                    </MenuItem>
-                    {models.map((model) => (
-                    <MenuItem key={model.model} value={model.model}>
-                      {`${model.model} (${model.count})`}
-                    </MenuItem>
-                  ))}
-                    
-                  </Field>
-                </FormControl>
+              <ModelSelect name="model" models={models} />
               
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -126,6 +108,42 @@ export default function Home({ makes,models }: HomeProps) {
       )}
     </Formik>
   );
+}
+
+
+
+export  interface ModelSelectProps extends SelectProps {
+  name:string
+  models:Model[];
+}
+export function ModelSelect({models ,...props}: ModelSelectProps){
+  const [field ] = useField({
+     name:props.name  
+  })
+  
+  return (
+    <FormControl fullWidth variant="outlined">
+      <InputLabel id="search-model">Model</InputLabel>
+      <Select
+        name="model"
+        labelId="search-model"
+        label="Model"
+        {...field}
+        {...props}
+      >
+        <MenuItem value="all">
+          <em>All Models</em>
+        </MenuItem>
+        {models.map((model) => (
+          <MenuItem key={model.model} value={model.model}>
+            {`${model.model} (${model.count})`}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+
+
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
