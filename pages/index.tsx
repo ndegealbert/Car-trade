@@ -7,7 +7,7 @@ import  {useRouter} from  "next/router"
 import  {getAsString  }  from "./getAsString"
 import { FormControl, Grid, InputLabel, makeStyles, MenuItem, Paper, Select,SelectProps  } from '@material-ui/core';
 import { Field, Form, Formik,useField } from 'formik';
-
+import useSWR from 'swr'
 
 export interface HomeProps {
   makes: Make[];
@@ -63,7 +63,7 @@ export default function Home({ makes,models }: HomeProps) {
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
-              <ModelSelect name="model" models={models} />
+              <ModelSelect make={values.make} name="model" models={models} />
               
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -115,11 +115,16 @@ export default function Home({ makes,models }: HomeProps) {
 export  interface ModelSelectProps extends SelectProps {
   name:string
   models:Model[];
+  make:string
 }
-export function ModelSelect({models ,...props}: ModelSelectProps){
+export function ModelSelect({models,make ,...props}: ModelSelectProps){
   const [field ] = useField({
      name:props.name  
   })
+
+  
+  const { data } = useSWR<Model[]>('/api/models?make=' + make)
+  const newModel = data || models
   
   return (
     <FormControl fullWidth variant="outlined">
@@ -134,17 +139,14 @@ export function ModelSelect({models ,...props}: ModelSelectProps){
         <MenuItem value="all">
           <em>All Models</em>
         </MenuItem>
-        {models.map((model) => (
+        {newModel.map((model) => (
           <MenuItem key={model.model} value={model.model}>
             {`${model.model} (${model.count})`}
           </MenuItem>
         ))}
       </Select>
     </FormControl>
-  );
-
-
-}
+  );}
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const  make =  getAsString(ctx.query.make)
